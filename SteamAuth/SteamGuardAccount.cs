@@ -123,7 +123,7 @@ namespace SteamAuth
 
         public Confirmation[] FetchConfirmations()
         {
-            string url = this._generateConfirmationURL();
+            string url = this.GenerateConfirmationURL();
 
             CookieContainer cookies = new CookieContainer();
             this.Session.AddCookies(cookies);
@@ -217,29 +217,29 @@ namespace SteamAuth
         {
             string url = APIEndpoints.COMMUNITY_BASE + "/mobileconf/ajaxop";
             string queryString = "?op=" + op + "&";
-            queryString += _generateConfirmationQueryParams(op);
+            queryString += GenerateConfirmationQueryParams(op);
             queryString += "&cid=" + conf.ConfirmationID + "&ck=" + conf.ConfirmationKey;
             url += queryString;
 
             CookieContainer cookies = new CookieContainer();
             this.Session.AddCookies(cookies);
-            string referer = _generateConfirmationURL();
+            string referer = GenerateConfirmationURL();
 
-            string response = SteamWeb.Request(url + queryString, "GET", null, cookies, null);
+            string response = SteamWeb.Request(url, "GET", null, cookies, null);
             if (response == null) return false;
 
             SendConfirmationResponse confResponse = JsonConvert.DeserializeObject<SendConfirmationResponse>(response);
             return confResponse.Success;
         }
 
-        private string _generateConfirmationURL(string tag = "conf")
+        public string GenerateConfirmationURL(string tag = "conf")
         {
             string endpoint = APIEndpoints.COMMUNITY_BASE + "/mobileconf/conf?";
-            string queryString = _generateConfirmationQueryParams(tag);
+            string queryString = GenerateConfirmationQueryParams(tag);
             return endpoint + queryString;
         }
 
-        private string _generateConfirmationQueryParams(string tag)
+        public string GenerateConfirmationQueryParams(string tag)
         {
             long time = TimeAligner.GetSteamTime();
             return "p=" + this.DeviceID + "&a=" + this.Session.SteamID.ToString() + "&k=" + _generateConfirmationHashForTime(time, tag) + "&t=" + time + "&m=android&tag=" + tag;
